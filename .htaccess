@@ -1,0 +1,50 @@
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+    
+#     # ডোমেইন রুট থেকে রিকোয়েস্ট আসলে তা /public ফোল্ডারে পাঠিয়ে দিবে
+#     RewriteCond %{REQUEST_URI} !^/public/
+#     RewriteRule ^(.*)$ public/$1 [L]
+# </IfModule>
+
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # --- সংবেদনশীল ফাইল বাইরে থেকে ব্লক করা ---
+    RewriteRule ^(\.env|composer\.json|composer\.lock|package\.json|README\.md) - [F,L]
+    RewriteRule (^|/)\.(?!well-known) - [F]
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # --- ফোল্ডার চেক করে public ফোল্ডারে রুট করা ---
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # যদি কেউ সরাসরি রুট ভিজিট করে
+    RewriteCond %{REQUEST_URI} ^/$
+    RewriteRule ^$ public/index.php [L]
+</IfModule>
+
+# অতিরিক্ত সিকিউরিটি হেডার
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
