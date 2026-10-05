@@ -48,3 +48,37 @@
     Header set X-XSS-Protection "1; mode=block"
     Header set X-Content-Type-Options "nosniff"
 </IfModule>
+
+
+
+
+#  othoba eitau use korte paro i thing eita good
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # --- ১. বেসিক সিকিউরিটি: সংবেদনশীল ফাইল চুরি ও ডিরেক্টরি ব্রাউজিং ব্লক ---
+    RewriteRule ^(\.env|\.git|composer\.(json|lock)|package(-lock)?\.json|artisan) - [F,L]
+    RewriteRule (^|/)\.(?!well-known) - [F]
+
+    # --- ২. পাবলিক ফোল্ডারে থাকা সব ফাইল (ইমেজ, সাইটম্যাপ, সিএসএস, স্টোরেজ) সরাসরি রেন্ডার ---
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # --- ৩. বাকি সব ইউআরএল Laravel-এর ফ্রন্ট কন্ট্রোলারে পাঠানো ---
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^ public/index.php [L]
+</IfModule>
+
+# --- ৪. ফিশিং, ম্যালওয়্যার ও ক্লিকজ্যাকিং প্রোটেকশন হেডার ---
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
