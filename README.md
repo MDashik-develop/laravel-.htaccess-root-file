@@ -1,0 +1,1 @@
+# laravel-.htaccess-root-file
