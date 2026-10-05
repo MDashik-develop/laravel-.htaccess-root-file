@@ -87,3 +87,47 @@ project>.htaccess
 * **সিকিউর সাইট র‌্যাংক ভালো পায়:** গুগলের অ্যালগরিদম সিকিউরড ওয়েবসাইটকে (যেমন: সংবেদনশীল ফাইল প্রোটেক্টেড থাকা) সার্চ রেজাল্টে কিছুটা প্রাধান্য দিয়ে থাকে।
 
 সংক্ষেপে বলতে গেলে, এই কোডটি আপনার লারাভেল প্রজেক্টকে ১০০% নিরাপদ রাখার পাশাপাশি গুগলের চোখে আপনার সাইটের এসইও ফ্রেন্ডলি স্ট্রাকচার বজায় রাখতে সাহায্য করবে।
+
+
+
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # --- ১. বেসিক সিকিউরিটি: সংবেদনশীল ফাইল চুরি ও ডিরেক্টরি ব্রাউজিং ব্লক ---
+    RewriteRule ^(\.env|\.git|composer\.(json|lock)|package(-lock)?\.json|artisan) - [F,L]
+    RewriteRule (^|/)\.(?!well-known) - [F]
+
+    # --- ২. পাবলিক ফোল্ডারে থাকা সব ফাইল (ইমেজ, সাইটম্যাপ, সিএসএস, স্টোরেজ) সরাসরি রেন্ডার ---
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # --- ৩. বাকি সব ইউআরএল Laravel-এর ফ্রন্ট কন্ট্রোলারে পাঠানো ---
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^ public/index.php [L]
+</IfModule>
+
+# --- ৪. ফিশিং, ম্যালওয়্যার ও ক্লিকজ্যাকিং প্রোটেকশন হেডার ---
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
