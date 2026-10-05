@@ -1,14 +1,18 @@
 # laravel-.htaccess-root-file
 project>.htaccess
 <br>
-**# <IfModule mod_rewrite.c>
-#     RewriteEngine On
+# this is just a redirect public/  folder only
+<IfModule mod_rewrite.c>
+    RewriteEngine On
     
-#     # ডোমেইন রুট থেকে রিকোয়েস্ট আসলে তা /public ফোল্ডারে পাঠিয়ে দিবে
-#     RewriteCond %{REQUEST_URI} !^/public/
-#     RewriteRule ^(.*)$ public/$1 [L]
-# </IfModule>
-**
+    # ডোমেইন রুট থেকে রিকোয়েস্ট আসলে তা /public ফোল্ডারে পাঠিয়ে দিবে
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<br>
+
+# this is secure and redirect public/  folder
 
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
